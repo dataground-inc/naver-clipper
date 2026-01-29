@@ -62,6 +62,7 @@ app.post("/extract", async (req, res) => {
     const data = await extractNaverCafePost(url);
     return res.json({ ok: true, data });
   } catch (err) {
+    console.error("[/extract] error:", err); // ✅ 이 줄 추가
     const mapped = mapError(err);
     return res.status(mapped.status).json({
       ok: false,
