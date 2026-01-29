@@ -1,0 +1,4 @@
+node_modules/
+storage/naver-state.json
+.env
+.DS_Store

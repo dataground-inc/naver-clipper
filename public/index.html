@@ -1,0 +1,483 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Notion Web Clipper</title>
+    <style>
+      :root {
+        --bg: #f2f4f6;
+        --card: #ffffff;
+        --text: #1f2937;
+        --muted: #6b7280;
+        --primary: #3182f6;
+        --primary-hover: #2a6dde;
+        --secondary: #e5e7eb;
+        --secondary-hover: #d1d5db;
+        --danger: #ef4444;
+        --shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        --radius: 16px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Segoe UI",
+          "Noto Sans KR", "Helvetica Neue", Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      .page {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 40px 20px 80px;
+      }
+
+      .header {
+        margin-bottom: 18px;
+      }
+
+      .title {
+        font-size: 22px;
+        font-weight: 700;
+      }
+
+      .subtitle {
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 6px;
+      }
+
+      .card {
+        background: var(--card);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .section-title {
+        font-size: 15px;
+        font-weight: 600;
+      }
+
+      input[type="text"] {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        background: #fff;
+        font-size: 14px;
+      }
+
+      .btn {
+        border: none;
+        border-radius: 12px;
+        padding: 12px 16px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: #fff;
+      }
+
+      .btn-primary:hover:enabled {
+        background: var(--primary-hover);
+      }
+
+      .btn-error {
+        background: var(--danger);
+        color: #fff;
+      }
+
+      .btn-error:hover:enabled {
+        background: #910c00;
+      }
+
+      .btn-block {
+        width: 100%;
+      }
+
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .preview {
+        border-radius: 14px;
+        border: 1px solid #eef2f7;
+        background: #f9fafb;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .preview-title {
+        font-size: 15px;
+        font-weight: 600;
+      }
+
+      .preview-content {
+        font-size: 13px;
+        color: #374151;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .muted {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .error {
+        color: var(--danger);
+        font-size: 13px;
+      }
+
+      .success {
+        color: #16a34a;
+        font-size: 13px;
+      }
+
+      a.link {
+        color: var(--primary);
+        text-decoration: none;
+      }
+
+      a.link:hover {
+        text-decoration: underline;
+      }
+
+      .toast {
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        right: 16px;
+        background: #2f343a;
+        color: #fff;
+        padding: 12px 18px;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        font-size: 14px;
+        display: none;
+        z-index: 60;
+        width: auto;
+        max-width: 860px;
+        text-align: left;
+        gap: 12px;
+      }
+
+      .toast-content {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .toast-icon {
+        width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        background: #22c55e;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: #fff;
+        flex-shrink: 0;
+      }
+
+      .toast.show {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        animation: toast-slide 0.22s ease;
+      }
+
+      @keyframes toast-slide {
+        from {
+          opacity: 0;
+          transform: translateY(-8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.35);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        z-index: 70;
+      }
+
+      .modal {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: var(--shadow);
+        width: min(420px, 100%);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .modal-title {
+        font-size: 16px;
+        font-weight: 700;
+      }
+
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+      }
+
+      @media (max-width: 640px) {
+        .page {
+          padding: 28px 16px 60px;
+        }
+
+        .card {
+          padding: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="header">
+        <div class="title">네이버 카페 게시글 Clipper</div>
+        <div class="subtitle">dataground.inc made by dean</div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">URL을 붙여넣어주세요</div>
+        <input
+          id="urlInput"
+          type="text"
+          placeholder="https://cafe.naver.com/..."
+          autocomplete="off"
+        />
+        <button id="checkBtn" class="btn btn-primary btn-block">
+          URL 확인하기
+        </button>
+        <button
+          id="saveBtn"
+          class="btn btn-primary btn-block"
+          style="display: none; background-color: #001693"
+        >
+          노션 DB로 저장하기
+        </button>
+
+        <div class="preview">
+          <div id="previewTitle" class="preview-title">
+            타이틀이 여기에 나타날거에요
+          </div>
+          <div id="previewDate" class="muted"></div>
+          <div id="previewContent" class="preview-content">
+            미리보기 내용이 여기에 나타날 거에요
+          </div>
+          <button
+            id="saveBtn"
+            class="btn btn-primary btn-block"
+            style="display: none; background-color: #001693"
+          >
+            노션 후기 DB에 저장하기
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite">
+      <div class="toast-content">
+        <span class="toast-icon">✓</span>
+        <span id="toastText"></span>
+      </div>
+    </div>
+
+    <div id="alertModal" class="modal-backdrop" role="dialog" aria-modal="true">
+      <div class="modal">
+        <div class="modal-title">에러 알림</div>
+        <div id="alertMessage" class="muted"></div>
+        <div class="modal-actions">
+          <button id="alertConfirmBtn" class="btn btn-error">OK</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const state = {
+        extracted: null,
+      };
+
+      const urlInput = document.getElementById("urlInput");
+      const checkBtn = document.getElementById("checkBtn");
+      const saveBtn = document.getElementById("saveBtn");
+      const previewTitle = document.getElementById("previewTitle");
+      const previewDate = document.getElementById("previewDate");
+      const previewContent = document.getElementById("previewContent");
+      const toast = document.getElementById("toast");
+      const toastText = document.getElementById("toastText");
+      const alertModal = document.getElementById("alertModal");
+      const alertMessage = document.getElementById("alertMessage");
+      const alertConfirmBtn = document.getElementById("alertConfirmBtn");
+      let toastTimer = null;
+
+      function setButtonLoading(button, loading, text) {
+        if (!button.dataset.label) {
+          button.dataset.label = button.textContent;
+        }
+        button.disabled = loading;
+        button.textContent = loading ? text : button.dataset.label;
+      }
+
+      function clear(target) {
+        if (!target) return;
+        target.textContent = "";
+        target.style.display = "none";
+      }
+
+      function showToast(message) {
+        toastText.textContent = message;
+        toast.classList.add("show");
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          toast.classList.remove("show");
+        }, 3000);
+      }
+
+      function showAlert(message) {
+        alertMessage.textContent = message;
+        alertModal.style.display = "flex";
+      }
+
+      function closeAlert() {
+        alertModal.style.display = "none";
+      }
+
+      function truncateText(text) {
+        if (!text) return "";
+        if (text.length <= 1000) return text;
+        return text.slice(0, 1000) + "\n…(1,000자 까지만..)";
+      }
+
+      async function fetchJson(url, options = {}) {
+        const res = await fetch(url, options);
+        const text = await res.text();
+        const trimmed = text.trim();
+
+        if (!trimmed) {
+          throw new Error(`Empty response from server (status ${res.status}).`);
+        }
+
+        let data;
+        try {
+          data = JSON.parse(trimmed);
+        } catch {
+          const preview = trimmed.slice(0, 300);
+          throw new Error(
+            `Invalid JSON response (status ${res.status}): ${preview}`,
+          );
+        }
+
+        if (!res.ok || data?.ok === false) {
+          const message =
+            data?.error?.message ||
+            `Request failed (status ${res.status}): ${trimmed.slice(0, 300)}`;
+          throw new Error(message);
+        }
+
+        return data;
+      }
+
+      async function extractContent(url) {
+        const data = await fetchJson("/extract", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url }),
+        });
+        return data.data;
+      }
+
+      async function saveToNotion(payload) {
+        const data = await fetchJson("/notion/save", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        return data;
+      }
+
+      checkBtn.addEventListener("click", async () => {
+        const url = urlInput.value.trim();
+        if (!url) {
+          showAlert("URL을 입력해주세요");
+          return;
+        }
+
+        setButtonLoading(checkBtn, true, "확인중...");
+        try {
+          state.extracted = await extractContent(url);
+          previewTitle.textContent = state.extracted.title || "No title";
+          previewDate.textContent = state.extracted.dateText
+            ? `Date: ${state.extracted.dateText}`
+            : "";
+          previewContent.textContent = truncateText(
+            state.extracted.contentText || "",
+          );
+          saveBtn.style.display = "block";
+        } catch (err) {
+          console.error(err);
+          showAlert(err.message);
+        } finally {
+          setButtonLoading(checkBtn, false, "URL 확인중..");
+        }
+      });
+
+      saveBtn.addEventListener("click", async () => {
+        if (!state.extracted) {
+          showAlert("Please check the URL first.");
+          return;
+        }
+
+        setButtonLoading(saveBtn, true, "저장중...");
+        try {
+          const result = await saveToNotion({
+            title: state.extracted.title,
+            contentText: state.extracted.contentText,
+            url: state.extracted.url,
+            dateText: state.extracted.dateText,
+            imageUrls: state.extracted.imageUrls,
+          });
+
+          showToast("노션 저장에 성공했어요");
+        } catch (err) {
+          console.error(err);
+          showAlert(err.message);
+        } finally {
+          setButtonLoading(saveBtn, false, "노션 저장에 성공했어요");
+        }
+      });
+
+      alertConfirmBtn.addEventListener("click", closeAlert);
+    </script>
+  </body>
+</html>
