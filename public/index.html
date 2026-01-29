@@ -173,6 +173,7 @@
         top: 16px;
         left: 16px;
         right: 16px;
+        transform: none;
         background: #2f343a;
         color: #fff;
         padding: 12px 18px;
@@ -182,7 +183,7 @@
         display: none;
         z-index: 60;
         width: auto;
-        max-width: 860px;
+        max-width: none;
         text-align: left;
         gap: 12px;
       }
@@ -368,7 +369,7 @@
         if (toastTimer) clearTimeout(toastTimer);
         toastTimer = setTimeout(() => {
           toast.classList.remove("show");
-        }, 3000);
+        }, 4500);
       }
 
       function showAlert(message) {
